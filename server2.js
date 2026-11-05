@@ -1,4 +1,5 @@
 import { createServer } from 'http';
+import { CLIENT_RENEG_LIMIT } from 'tls';
 const PORT = process.env.PORT;
 
 const users = [
@@ -7,8 +8,15 @@ const users = [
     {id: 3, name: 'Jim Doe'}
 ];
 
+// Logger middleware
+const logger = (req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
+    next();
+}
+
 const server = createServer((req, res) => {
-    if (req.url === '/api/users' && req.method === 'GET') {
+    logger(req, res, () => {
+        if (req.url === '/api/users' && req.method === 'GET') {
         res.setHeader('Content-Type', 'application/JSON');
         res.write(JSON.stringify(users));
         res.end();
@@ -31,6 +39,7 @@ const server = createServer((req, res) => {
         res.write(JSON.stringify({ message: 'Route not found' }));
         res.end();
     }
+    });
 });
 
 server.listen(PORT, () => {
